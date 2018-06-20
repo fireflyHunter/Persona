@@ -6,6 +6,7 @@ sys.path.append('../')
 from sklearn.externals import joblib
 import string
 import numpy
+import logging
 
 numpy.random.seed(1337)
 from nltk.corpus import stopwords
@@ -14,6 +15,9 @@ from sklearn.decomposition import NMF, LatentDirichletAllocation
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 
 stoplist = stopwords.words('english')
+
+logging.basicConfig(filename='../log.txt', format='%(levelname)s : %(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(levelname)s : %(message)s', level=logging.DEBUG)
 
 
 class LDA_trainer():
@@ -68,7 +72,7 @@ class LDA_trainer():
 
     def train_LDA(self, no_topics=20, model_file='./persona_lda.model'):
         # Run LDA
-        lda = LatentDirichletAllocation(n_components=no_topics, max_iter=5, learning_method='online',
+        lda = LatentDirichletAllocation(n_components=no_topics, max_iter=10, learning_method='online',
                                         learning_offset=50.,
                                         random_state=0).fit(self.tf)
 
@@ -83,12 +87,12 @@ class LDA_trainer():
             print(" ".join([self.tf_feature_names[i] for i in topic.argsort()[:-no_top_words - 1:-1]]))
 
 
-train_file = 'personas.txt'
+train_file = 'persona_with_role.txt'
 test_file = ''
 
 lt = LDA_trainer()
 lt.prepare_LDA_corpus(train_file)
-# lt.train_LDA(model_file='personas_lda_wiki.model')
+lt.train_LDA(model_file='personas_lda_wiki.model')
 lt.load_lda_model(filename='personas_lda_wiki.model')
 lt.display_topics(10)
 
